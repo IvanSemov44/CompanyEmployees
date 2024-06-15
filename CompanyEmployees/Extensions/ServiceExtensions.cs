@@ -1,8 +1,8 @@
-﻿using Contracts;
-using LoggerService;
-
-namespace CompanyEmployees.Extensions
+﻿namespace CompanyEmployees.Extensions
 {
+    using Contracts;
+    using LoggerService;
+
     public static class ServiceExtensions
     {
         public static void ConfigureCors(this IServiceCollection services) =>
