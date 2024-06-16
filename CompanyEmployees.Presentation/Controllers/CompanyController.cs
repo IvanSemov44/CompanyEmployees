@@ -14,9 +14,15 @@
         [HttpGet]
         public IActionResult GetCompanies()
         {
-                var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
-                return Ok(companies);
+            var companies = _serviceManager.CompanyService.GetAllCompanies(trackChanges: false);
+            return Ok(companies);
         }
 
+        [HttpGet("{id:Guid}")]
+        public IActionResult GetCompany(Guid id)
+        {
+            var company = _serviceManager.CompanyService.GetCompany(id, trackChanges: false);
+            return Ok(company);
+        }
     }
 }
