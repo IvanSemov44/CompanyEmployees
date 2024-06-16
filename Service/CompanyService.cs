@@ -2,6 +2,7 @@
 {
     using AutoMapper;
     using Contracts;
+    using Entities.Exceptions;
     using global::Contracts;
     using Shared.DataTransferObjects;
     using System.Collections.Generic;
@@ -31,6 +32,8 @@
         public CompanyDto GetCompany(Guid companyId, bool trackChanges)
         {
             var company = _repository.Company.GetCompany(companyId, trackChanges);
+            if (company is null) 
+                throw new CompanyNotFoundException(companyId);
 
             var companyDto = _mapper.Map<CompanyDto>(company);
             return companyDto;
