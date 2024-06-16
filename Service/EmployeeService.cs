@@ -1,11 +1,12 @@
-﻿
-
-using AutoMapper;
-using Contracts;
-using Service.Contracts;
-
-namespace Service
+﻿namespace Service
 {
+    using global::Contracts;
+
+    using AutoMapper;
+    using Contracts;
+    using Entities.Exceptions;
+    using Shared.DataTransferObjects;
+
     internal sealed class EmployeeService : IEmployeeService
     {
         private readonly IRepositoryManager _repository;
@@ -17,6 +18,18 @@ namespace Service
             _repository = repositoryManager;
             _logger = loggerManager;
             _mapper = mapper;
+        }
+
+        public IEnumerable<EmployeeDto> GetEmployees(Guid companyId, bool trackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, trackChanges);
+            if (company is null)
+                throw new CompanyNotFoundException(companyId);
+
+            var employeesFromDb = _repository.Employee.GetEmployees(companyId, trackChanges);
+            var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
+
+            return employeesDto;
         }
     }
 }
