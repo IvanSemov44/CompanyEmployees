@@ -20,7 +20,7 @@
             return Ok(companies);
         }
 
-        [HttpGet("{id:Guid}",Name = "CompanyId")]
+        [HttpGet("{id:Guid}", Name = "CompanyId")]
         public IActionResult GetCompany(Guid id)
         {
             var company = _serviceManager.CompanyService.GetCompany(id, trackChanges: false);
@@ -39,7 +39,7 @@
         }
 
         [HttpGet("collection/({ids})", Name = "CompanyCollection")]
-        public IActionResult GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))]IEnumerable<Guid> ids) 
+        public IActionResult GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             var companies = _serviceManager.CompanyService.GetByIds(ids, trackChanges: false);
             return Ok(companies);
@@ -56,7 +56,18 @@
         [HttpDelete("{id:guid}")]
         public IActionResult DeleteCompany(Guid id)
         {
-            _serviceManager.CompanyService.DeleteCompany(id,trackChanges:false);
+            _serviceManager.CompanyService.DeleteCompany(id, trackChanges: false);
+
+            return NoContent();
+        }
+
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto companyForUpdate)
+        {
+            if (companyForUpdate is null)
+                return BadRequest("CompanyForUpdateDto object is null");
+
+            _serviceManager.CompanyService.UpdateCompany(id,companyForUpdate, trackChanges: true);
 
             return NoContent();
         }
