@@ -7,6 +7,7 @@
     using Entities.Exceptions;
     using Shared.DataTransferObjects;
     using Entities;
+    using System.Globalization;
 
     internal sealed class EmployeeService : IEmployeeService
     {
@@ -75,6 +76,21 @@
                 throw new EmployeeNotFoundException(id);
 
             _repository.Employee.DeleteEmployee(employeeForCompany);
+            _repository.Save();
+        }
+
+        public void UpdateEmployeeForCompany(Guid companyId, Guid id, EmployeeForUpdateDto employeeForUpdate,
+            bool companyTrackChanges, bool employeeTrackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, companyTrackChanges);
+            if (company is null)
+                throw new CompanyNotFoundException(companyId);
+
+            var employee = _repository.Employee.GetEmployee(companyId, id, employeeTrackChanges);
+            if(employee is null)
+                throw new EmployeeNotFoundException(id);
+
+            _mapper.Map(employeeForUpdate, employee);
             _repository.Save();
         }
     }
