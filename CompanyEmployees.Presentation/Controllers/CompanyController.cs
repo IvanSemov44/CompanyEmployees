@@ -33,6 +33,9 @@
             if (company is null)
                 return BadRequest("CompanyForCreation is null");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var createdCompany = _serviceManager.CompanyService.CreateCompany(company);
 
             return CreatedAtRoute("CompanyId", new { id = createdCompany.Id }, createdCompany);

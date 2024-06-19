@@ -37,6 +37,9 @@ namespace CompanyEmployees.Presentation.Controllers
             if (employee is null)
                 return BadRequest("ËmployeeForCreationDto object is null");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var employeeToReturn = _service.EmployeeService
                 .CreateEmployeeForCompany(companyId, employee, trackChanges: false);
 
@@ -59,11 +62,15 @@ namespace CompanyEmployees.Presentation.Controllers
             if (employeeForUpdate is null)
                 return BadRequest("EmployeeForUpdateDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             _service.EmployeeService.UpdateEmployeeForCompany(companyId, id, employeeForUpdate,
                 companyTrackChanges: false, employeeTrackChanges: true);
 
             return NoContent();
         }
+
         [HttpPatch("{id:guid}")]
         public IActionResult PartiallyUpdateEmployeeForCompany(Guid companyId, Guid id,
             [FromBody] JsonPatchDocument<EmployeeForUpdateDto> patchDocument)
@@ -71,10 +78,17 @@ namespace CompanyEmployees.Presentation.Controllers
             if (patchDocument is null)
                 return BadRequest("PatchDocument object sent from client is null.");
 
+           
+
             var result = _service.EmployeeService.GetEmployeeForPatch(companyId, id,
                 compnanyTrackChanges: false, employeeTrackChanges: true);
 
-            patchDocument.ApplyTo(result.employeeToPatch);
+            patchDocument.ApplyTo(result.employeeToPatch,ModelState);
+
+            TryValidateModel(result.employeeToPatch);
+
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
 
             _service.EmployeeService.SaveChangesForPatch(result.employeeToPatch, result.employeeEntity);
 
