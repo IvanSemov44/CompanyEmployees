@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.Mvc;
-using Service.Contracts;
-using Shared.DataTransferObjects;
-
-namespace CompanyEmployees.Presentation.Controllers
+﻿namespace CompanyEmployees.Presentation.Controllers
 {
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.JsonPatch;
+
+    using Service.Contracts;
+    using Shared.DataTransferObjects;
+    using CompanyEmployees.Presentation.ActionFilters;
+
     [Route("api/companies/{companyId}/employees")]
     [ApiController]
     public class EmployeesController : ControllerBase
@@ -32,14 +34,9 @@ namespace CompanyEmployees.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateEmployeeForCompany(Guid companyId, [FromBody] EmployeeForCreationDto employee)
         {
-            if (employee is null)
-                return BadRequest("ËmployeeForCreationDto object is null");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var employeeToReturn = await _service.EmployeeService
                 .CreateEmployeeForCompanyAsync(companyId, employee, trackChanges: false);
 
@@ -56,15 +53,10 @@ namespace CompanyEmployees.Presentation.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateEmployeeForCompany(Guid companyId, Guid id,
             [FromBody] EmployeeForUpdateDto employeeForUpdate)
         {
-            if (employeeForUpdate is null)
-                return BadRequest("EmployeeForUpdateDto is null.");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             await _service.EmployeeService.UpdateEmployeeForCompanyAsync(companyId, id, employeeForUpdate,
                 companyTrackChanges: false, employeeTrackChanges: true);
 
@@ -77,8 +69,6 @@ namespace CompanyEmployees.Presentation.Controllers
         {
             if (patchDocument is null)
                 return BadRequest("PatchDocument object sent from client is null.");
-
-
 
             var result = await _service.EmployeeService.GetEmployeeForPatchAsync(companyId, id,
                 compnanyTrackChanges: false, employeeTrackChanges: true);

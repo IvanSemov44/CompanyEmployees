@@ -1,9 +1,11 @@
 ﻿namespace CompanyEmployees.Presentation.Controllers
 {
-    using CompanyEmployees.Presentation.ModelBinders;
     using Microsoft.AspNetCore.Mvc;
+
     using Service.Contracts;
     using Shared.DataTransferObjects;
+    using CompanyEmployees.Presentation.ModelBinders;
+    using CompanyEmployees.Presentation.ActionFilters;
 
     [Route("api/companies")]
     [ApiController]
@@ -17,6 +19,7 @@
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _serviceManager.CompanyService.GetAllCompaniesAsync(trackChanges: false);
+           
             return Ok(companies);
         }
 
@@ -24,18 +27,14 @@
         public async Task<IActionResult> GetCompany(Guid id)
         {
             var company = await _serviceManager.CompanyService.GetCompanyAsync(id, trackChanges: false);
+           
             return Ok(company);
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
-            if (company is null)
-                return BadRequest("CompanyForCreation is null");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var createdCompany = await _serviceManager.CompanyService.CreateCompanyAsync(company);
 
             return CreatedAtRoute("CompanyId", new { id = createdCompany.Id }, createdCompany);
@@ -45,6 +44,7 @@
         public async Task<ActionResult> GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             var companies = await _serviceManager.CompanyService.GetByIdsAsync(ids, trackChanges: false);
+           
             return Ok(companies);
         }
 
@@ -65,11 +65,9 @@
         }
 
         [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto companyForUpdate)
         {
-            if (companyForUpdate is null)
-                return BadRequest("CompanyForUpdateDto object is null");
-
             await _serviceManager.CompanyService.UpdateCompanyAsync(id,companyForUpdate, trackChanges: true);
 
             return NoContent();
