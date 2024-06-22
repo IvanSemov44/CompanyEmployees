@@ -1,11 +1,14 @@
 ﻿namespace CompanyEmployees.Presentation.Controllers
 {
+    using System.Text.Json;
+
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.JsonPatch;
 
     using Service.Contracts;
     using Shared.DataTransferObjects;
     using CompanyEmployees.Presentation.ActionFilters;
+    using Shared.RequestFeatures;
 
     [Route("api/companies/{companyId}/employees")]
     [ApiController]
@@ -19,11 +22,13 @@
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId)
+        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
-            var employees = await _service.EmployeeService.GetEmployeesAsync(companyId, trackChanges: false);
+            var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
 
-            return Ok(employees);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
+
+            return Ok(pagedResult.employees);
         }
 
         [HttpGet("{id:guid}", Name = "GetEmployeeForCompany")]
