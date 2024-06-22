@@ -21,7 +21,7 @@
         {
             var count = source.Count();
             var items = source
-                .Skip((pageSize - 1) * pageNumber)
+                .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 

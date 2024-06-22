@@ -9,6 +9,7 @@
     using Shared.DataTransferObjects;
     using CompanyEmployees.Presentation.ActionFilters;
     using Shared.RequestFeatures;
+    using Entities.Exceptions;
 
     [Route("api/companies/{companyId}/employees")]
     [ApiController]
@@ -24,6 +25,9 @@
         [HttpGet]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
+            if (!employeeParameters.ValidAgeRange)
+                throw new MaxAgeRangeBadRequestException();
+
             var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
 
             Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
