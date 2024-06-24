@@ -10,6 +10,7 @@
     using CompanyEmployees.Presentation.ActionFilters;
     using Shared.RequestFeatures;
     using Entities.Exceptions;
+    using Entities.LinkModels;
 
     [Route("api/companies/{companyId}/employees")]
     [ApiController]
@@ -23,16 +24,23 @@
         }
 
         [HttpGet]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
-            if (!employeeParameters.ValidAgeRange)
-                throw new MaxAgeRangeBadRequestException();
+            //if (!employeeParameters.ValidAgeRange)
+            //    throw new MaxAgeRangeBadRequestException();
 
-            var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
+            //var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
 
-            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
+            var linkParams = new LinkParameters(employeeParameters, HttpContext);
 
-            return Ok(pagedResult.employees);
+            var result = await _service.EmployeeService.GetEmployeesAsync(companyId, linkParams, trackChanges: false);
+
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(result.metaData));
+
+            return result.linkResponse.HasLinks ?
+                Ok(result.linkResponse.LinkedEntities) :
+                Ok(result.linkResponse.ShapedEntities);
         }
 
         [HttpGet("{id:guid}", Name = "GetEmployeeForCompany")]
