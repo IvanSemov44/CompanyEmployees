@@ -44,6 +44,8 @@
                 {
                     systemTextJsonOutputFormatter.SupportedMediaTypes
                     .Add("application/vdn.codemaze.hateoas+json");
+                    systemTextJsonOutputFormatter.SupportedMediaTypes
+                    .Add("application/vdn.codemaze.apiroot+json");
                 }
             });
         }
