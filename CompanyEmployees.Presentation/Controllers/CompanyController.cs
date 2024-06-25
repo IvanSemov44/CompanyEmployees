@@ -6,6 +6,7 @@
     using Shared.DataTransferObjects;
     using CompanyEmployees.Presentation.ModelBinders;
     using CompanyEmployees.Presentation.ActionFilters;
+    using Marvin.Cache.Headers;
 
     [Route("api/companies")]
     [ApiController]
@@ -24,6 +25,8 @@
         }
 
         [HttpGet("{id:Guid}", Name = "CompanyId")]
+        [HttpCacheExpiration(CacheLocation = CacheLocation.Public, MaxAge = 60)]
+        [HttpCacheValidation(MustRevalidate = false)]
         public async Task<IActionResult> GetCompany(Guid id)
         {
             var company = await _serviceManager.CompanyService.GetCompanyAsync(id, trackChanges: false);
