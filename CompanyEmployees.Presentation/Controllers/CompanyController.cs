@@ -7,6 +7,7 @@
     using CompanyEmployees.Presentation.ModelBinders;
     using CompanyEmployees.Presentation.ActionFilters;
     using Marvin.Cache.Headers;
+    using Microsoft.AspNetCore.Authorization;
 
     [Route("api/companies")]
     [ApiController]
@@ -17,6 +18,7 @@
         public CompanyController(IServiceManager serviceManager) => _serviceManager = serviceManager;
 
         [HttpGet(Name = "GetCompanies")]
+        [Authorize]
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _serviceManager.CompanyService.GetAllCompaniesAsync(trackChanges: false);

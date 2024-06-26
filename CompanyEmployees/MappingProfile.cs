@@ -2,6 +2,7 @@
 {
     using AutoMapper;
     using Entities;
+    using Entities.Models;
     using Shared.DataTransferObjects;
 
     public class MappingProfile : Profile
@@ -20,6 +21,8 @@
             CreateMap<EmployeeForCreationDto, Employee>();
             CreateMap<EmployeeForUpdateDto, Employee>();
             CreateMap<EmployeeForUpdateDto, Employee>().ReverseMap();
+
+            CreateMap<UserForRegistrationDto, User>();
         }
     }
 }
