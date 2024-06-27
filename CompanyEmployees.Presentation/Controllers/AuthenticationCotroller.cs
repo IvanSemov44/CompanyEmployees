@@ -24,7 +24,7 @@
 
             if (!result.Succeeded)
             {
-                foreach(var error in result.Errors)
+                foreach (var error in result.Errors)
                 {
                     ModelState.TryAddModelError(error.Code, error.Description);
                 }
@@ -32,6 +32,19 @@
             }
 
             return StatusCode(201);
+        }
+
+        [HttpPost("login")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
+        {
+            if (!await _service.AuthenticationServices.ValidateUser(user))
+                return Unauthorized();
+
+            return Ok(new
+            {
+                Token = await _service.AuthenticationServices.CreateToken()
+            });
         }
     }
 }

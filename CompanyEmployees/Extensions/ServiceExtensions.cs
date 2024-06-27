@@ -151,7 +151,7 @@
 
                         ValidIssuer = jwtSettings["validIssuer"],
                         ValidAudience = jwtSettings["ValidAudience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(secretKey))
                     };
                 });
         }
