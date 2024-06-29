@@ -1,6 +1,7 @@
 ﻿namespace Service
 {
     using AutoMapper;
+    using Entities.ConfigurationModels;
     using Entities.Exceptions;
     using Entities.Models;
     using global::Contracts;
@@ -20,6 +21,7 @@
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly JwtConfiguration _jwtConfiguration;
 
         private User? _user;
 
@@ -30,6 +32,8 @@
             _mapper = mapper;
             _userManager = user;
             _configuration = configuration;
+            _jwtConfiguration = new JwtConfiguration();
+            _configuration.Bind(_jwtConfiguration.Section, _jwtConfiguration);
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -102,14 +106,12 @@
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
-            var jwtSetting = _configuration.GetSection("JWTSettings");
-
             var tokenOptions = new JwtSecurityToken
             (
-                issuer: jwtSetting["validIssuer"],
-                audience: jwtSetting["ValidAudience"],
+                issuer: _jwtConfiguration.ValidIssuer,
+                audience: _jwtConfiguration.ValidAudience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSetting["expires"])),
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
                 signingCredentials: signingCredentials
             );
 

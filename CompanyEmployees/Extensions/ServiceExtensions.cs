@@ -3,6 +3,7 @@
     using AspNetCoreRateLimit;
     using CompanyEmployees.Presentation.Controllers;
     using Contracts;
+    using Entities.ConfigurationModels;
     using Entities.Models;
     using LoggerService;
     using Marvin.Cache.Headers;
@@ -132,7 +133,9 @@
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
-            var jwtSettings = configuration.GetSection("JWTSettings");
+            var jwtConfiguration = new JwtConfiguration();
+            configuration.Bind(jwtConfiguration.Section, jwtConfiguration);
+
             var secretKey = Environment.GetEnvironmentVariable("SECRET");
 
             services.AddAuthentication(opt =>
@@ -149,8 +152,8 @@
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
 
-                        ValidIssuer = jwtSettings["validIssuer"],
-                        ValidAudience = jwtSettings["ValidAudience"],
+                        ValidIssuer = jwtConfiguration.ValidIssuer,
+                        ValidAudience = jwtConfiguration.ValidAudience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF32.GetBytes(secretKey))
                     };
                 });
