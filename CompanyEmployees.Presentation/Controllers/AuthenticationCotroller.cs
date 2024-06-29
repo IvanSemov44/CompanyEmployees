@@ -41,10 +41,9 @@
             if (!await _service.AuthenticationServices.ValidateUser(user))
                 return Unauthorized();
 
-            return Ok(new
-            {
-                Token = await _service.AuthenticationServices.CreateToken()
-            });
+            var tokenDto = await _service.AuthenticationServices.CreateToken(populateExp: true);
+
+            return Ok(tokenDto);
         }
     }
 }
